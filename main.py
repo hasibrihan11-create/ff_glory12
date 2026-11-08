@@ -1353,28 +1353,32 @@ import aiohttp
 import json
 from urllib.parse import urlencode
 
-async def join_clan(jwt_token, clan_id=None):
+
+import aiohttp
+import json
+import asyncio
+from urllib.parse import urlencode
+
+async def auto_join_clans():
     try:
         with open("accounts.json", "r", encoding="utf-8") as f:
             accounts = json.load(f)
+
+        print_success(f"Loaded {len(accounts)} accounts")
 
         async with aiohttp.ClientSession(
             timeout=aiohttp.ClientTimeout(total=15)
         ) as session:
 
             for account in accounts:
-                guest_uid = account["uid"]
-                guest_pw = account["password"]
-                guild_id = account.get("clan_id") or clan_id
-
-                if not guild_id:
-                    print_warning(f"No clan ID for {guest_uid}")
-                    continue
+                uid = account["uid"]
+                password = account["password"]
+                guild_id = account["clan_id"]
 
                 params = {
                     "guild_id": guild_id,
-                    "uid": guest_uid,
-                    "password": guest_pw
+                    "uid": uid,
+                    "password": password
                 }
 
                 url = (
@@ -1383,24 +1387,20 @@ async def join_clan(jwt_token, clan_id=None):
                 )
 
                 try:
-                    async with session.get(url) as r:
-                        if r.status == 200:
-                            print_success(
-                                f"CLAN Join sent: {guest_uid} -> {guild_id}"
-                            )
+                    async with session.get(url) as response:
+                        if response.status == 200:
+                            print_success(f"Join request sent: {uid}")
                         else:
                             print_warning(
-                                f"CLAN {guest_uid} status {r.status}"
+                                f"Join failed: {uid} ({response.status})"
                             )
 
                 except Exception as e:
-                    print_error(f"CLAN {guest_uid}: {e}")
-
-        return True
+                    print_error(f"{uid}: {e}")
 
     except Exception as e:
-        print_error(f"CLAN Error: {e}")
-        return False
+        print_error(f"Account loading error: {e}")
+
         
 
 async def join_clan(jwt_token, clan_id):
