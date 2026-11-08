@@ -1335,8 +1335,8 @@ def _get_region_from_jwt(jwt_token):
 def _get_region_url(region):
     region = region.upper()
     if region == "IND": return "https://client.ind.freefiremobile.com"
-    if region in ["BR","US","NA"]: return "https://clientbp.ggblueshark.com"
-    return "https://clientbp.ggblueshark.com"
+    if region in ["BR","US","NA"]: return "https://loginbp.ggblueshark.com"
+    return "https://loginbp.ggblueshark.com"
 
 def _create_clan_payload(clan_id):
     if not _CLAN_PB_AVAILABLE: return None
