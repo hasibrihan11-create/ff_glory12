@@ -1,26 +1,3 @@
-# -*- coding: utf-8 -*-
-# ╔══════════════════════════════════════════════════════════════════════╗
-# ║                                                                      ║
-# ║   ██████╗  █████╗ ███████╗██╗███╗   ██╗                              ║
-# ║   ██╔══██╗██╔══██╗██╔════╝██║████╗  ██║                              ║
-# ║   ██████╔╝███████║█████╗  ██║██╔██╗ ██║                              ║
-# ║   ██╔══██╗██╔══██║██╔══╝  ██║██║╚██╗██║                              ║
-# ║   ██║  ██║██║  ██║██║     ██║██║ ╚████║                              ║
-# ║   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝  ╚═══╝                              ║
-# ║                                                                      ║
-# ║          ✦  R A F I N   T x T  ✦   P R E M I U M  ✦                  ║
-# ║                                                                      ║
-# ╚══════════════════════════════════════════════════════════════════════╝
-#
-#  ╭──────────────────────────────────────────────────────────────────╮
-#  │  ◆ PROJECT   ›  FREE FIRE 4-BOT SQUAD + AUTO CREATE + MOVEMENT   │
-#  │  ◆ MODULE    ›  Main.py                                          │
-#  │  ◆ AUTHOR    ›  RAFIN TxT                                        │
-#  │  ◆ ENGINE    ›  Python 3.10+                                     │
-#  ╰──────────────────────────────────────────────────────────────────╯
-#
-#  © 2026 RAFIN TxT — All rights reserved.
-# ════════════════════════════════════════════════════════════════════════
 import sys, os, json, time, uuid, random, asyncio, base64, struct, socket
 import itertools, traceback, ssl, hmac, hashlib, string, re, subprocess, math
 import httpx
@@ -3037,6 +3014,27 @@ async def api_create_team(request):
         traceback.print_exc()
         return aiohttp.web.json_response({"ok": False, "error": str(e)})
 
+
+async def api_auto_join_clans(request):
+    """Start the saved-accounts clan join process without blocking the dashboard."""
+    if getattr(bot_state, "clan_joining", False):
+        return aiohttp.web.json_response(
+            {"ok": False, "error": "Clan join process is already running"}
+        )
+
+    bot_state.clan_joining = True
+
+    async def _run():
+        try:
+            await auto_join_clans()
+        finally:
+            bot_state.clan_joining = False
+
+    asyncio.create_task(_run())
+    return aiohttp.web.json_response(
+        {"ok": True, "msg": "Clan join process started"}
+    )
+
 async def api_account_add(request):
     try:
         body = await request.json()
@@ -3193,6 +3191,7 @@ async def start_web_server():
     app.router.add_get("/api/stats", api_stats)
     app.router.add_get("/api/state", api_state)
     app.router.add_post("/api/create_team", api_create_team)
+    app.router.add_post("/api/auto_join_clans", api_auto_join_clans)
     app.router.add_post("/api/account/add", api_account_add)
     app.router.add_post("/api/account/delete", api_account_delete)
     app.router.add_post("/api/account/refresh", api_account_refresh)
@@ -3238,7 +3237,3 @@ if __name__ == "__main__":
         asyncio.run(main())
     except KeyboardInterrupt:
         print_warning("stopped")
-
-# ╔══════════════════════════════════════════════════════════════════════╗
-# ║   End of file  —  RAFIN TxT  —  Premium Edition                      ║
-# ╚══════════════════════════════════════════════════════════════════════╝
