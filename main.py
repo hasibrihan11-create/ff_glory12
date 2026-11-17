@@ -2745,7 +2745,7 @@ async def create_four_accounts(region: str, clan_id: str, count: int = 4, passwo
                 platform = tok.get("platform", 4)
                 major_payload, login_payload = await get_payload(
                     access_token, open_id, platform, game_version, lang)
-                nickname_final = "FENI•" + "".join(
+                nickname_final = "HASIB•" + "".join(
                     random.choices(string.ascii_uppercase + string.digits, k=5))
                 mr = await major_register(release_v, access_token, open_id,
                                           nickname_final, game_version, login_url, lang)
